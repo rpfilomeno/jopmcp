@@ -2,37 +2,37 @@ import json
 import logging
 from typing import Any, Mapping
 
-
 # Taken from:
 # https://github.com/MyColorfulDays/jsonformatter/blob/f7908f1b2bc9e556aea29f26307643e732ac8b5e/src/jsonformatter/jsonformatter.py#L89
 _LogRecordDefaultAttributes = {
-    'name',
-    'msg',
-    'args',
-    'levelname',
-    'levelno',
-    'pathname',
-    'filename',
-    'module',
-    'exc_info',
-    'exc_text',
-    'stack_info',
-    'lineno',
-    'funcName',
-    'created',
-    'msecs',
-    'relativeCreated',
-    'thread',
-    'threadName',
-    'processName',
-    'process',
-    'message',
-    'asctime',
+    "name",
+    "msg",
+    "args",
+    "levelname",
+    "levelno",
+    "pathname",
+    "filename",
+    "module",
+    "exc_info",
+    "exc_text",
+    "stack_info",
+    "lineno",
+    "funcName",
+    "created",
+    "msecs",
+    "relativeCreated",
+    "thread",
+    "threadName",
+    "processName",
+    "process",
+    "message",
+    "asctime",
     "otelSpanID",
     "otelTraceID",
     "otelTraceSampled",
     "otelServiceName",
     "taskName",
+    "color_message"
 }
 
 
@@ -59,15 +59,19 @@ class ColorFormatter(logging.Formatter):
         }
 
     def format(self, record: logging.LogRecord) -> str:
-        log_fmt = self.FORMATS.get(record.levelno)
-        formatter = logging.Formatter(log_fmt)
+        # Get the format string with appropriate color.
+        # This includes color codes and standard format specifiers like `%(levelname)s`, `%(message)s`.
+        log_fmt_with_color = self.FORMATS.get(record.levelno)
 
-        extras = get_records_extra_attrs(record)
+        # Create a temporary standard Formatter using the chosen colored format string.
+        # It's crucial to pass datefmt and style from self to ensure consistency.
+        temp_formatter = logging.Formatter(log_fmt_with_color)
 
-        if (extras := get_records_extra_attrs(record)):
-            record.msg = f"{record.msg}. Extras: {json.dumps(extras)}"
+        # Get the fully formatted log output from the temporary formatter.
+        # This call will internally handle `record.msg % record.args` correctly without issues.
+        formatted_output = temp_formatter.format(record)
 
-        return formatter.format(record)
+        return formatted_output
 
 
 def get_records_extra_attrs(record: logging.LogRecord) -> Mapping[str, Any]:
