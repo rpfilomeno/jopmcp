@@ -29,6 +29,10 @@ async def list_tools() -> None:
             print("Description:", res.description)
             print("-" * 40)
 
+async def ping() -> None:
+    async with client:
+        result = await client.call_tool("ping")
+        print_result(result)
 
 async def list_notebook() -> None:
     async with client:
@@ -104,8 +108,32 @@ async def update_note() -> None:
         print_result(result)
 
 
+async def create_notebook() -> None:
+    async with client:
+        result = await client.call_tool(
+            "create_notebook",
+            {
+                "title": "Test Notebook",
+            },
+        )
+        print_result(result)
+
+
+async def update_notebook() -> None:
+    async with client:
+        result = await client.call_tool(
+            "update_notebook",
+            {
+                "notebook_id": "c81009ccefd7409794e48574bf1d2230",
+                "title": "Updated Notebook Title",
+            },
+        )
+        print_result(result)
+
+
 async def main() -> None:
     # await list_tools()
+    await ping()
     # await list_notebook()
     # await find_notes_in_notebook()
     # await get_note_by_id()
@@ -113,7 +141,9 @@ async def main() -> None:
     # await find_notes()
     # await create_note()
     # await create_note_todo()
-    await update_note()
+    # await update_note()
+    # await create_notebook()
+    # await update_notebook()
 
 
 if __name__ == "__main__":

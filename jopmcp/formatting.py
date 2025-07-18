@@ -5,14 +5,13 @@ import joppy.data_types as dt
 from jopmcp.models import ItemType
 
 
-def format_item_list(items: list, item_type: ItemType) -> str:
+def format_item_list(items: list, item_type: ItemType, paths: dict[str, str]) -> str:
     """Format a list of items (notebooks, tags, etc.) for display optimized for LLM comprehension."""
     if not items:
         return f"ITEM_TYPE: {item_type.value}\nTOTAL_ITEMS: 0\nSTATUS: No {item_type.value}s found in Joplin instance"
 
     count = len(items)
     result_parts = [f"ITEM_TYPE: {item_type.value}", f"TOTAL_ITEMS: {count}", ""]
-    paths = build_paths(items)
 
     for i, item in enumerate(items, 1):
         title = getattr(item, "title", "Untitled")
@@ -48,30 +47,6 @@ def format_item_list(items: list, item_type: ItemType) -> str:
         result_parts.append("")
 
     return "\n".join(result_parts)
-
-
-def build_paths(items: list[dt.NotebookData | dt.NoteData]) -> dict[str, str]:
-
-    nodes = {i.id: i for i in items}
-    output: dict[str, str] = {}
-
-    for it in items:
-        if it.id is None:
-            continue
-
-        n: dt.NotebookData | dt.NoteData | None = it
-        parents: list[str] = []
-
-        while n is not None:
-            title = getattr(n, "title", "Untitled")
-            parents.append(title)
-            n = nodes.get(n.parent_id, None)
-
-        if parents:
-            path = " > ".join(list(reversed(parents)))
-            output[it.id] = path
-
-    return output
 
 
 def format_note_details(note: dt.NoteData) -> str:
