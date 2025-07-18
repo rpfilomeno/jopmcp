@@ -31,17 +31,17 @@ def format_item_list(items: list, item_type: ItemType) -> str:
             result_parts.append(f"  path: {paths[item_id]}")
 
         # Add parent folder ID if available (for notebooks)
-        parent_id = getattr(item, "  parent_id", None)
+        parent_id = getattr(item, "parent_id", None)
         if parent_id:
             result_parts.append(f"  parent_id: {parent_id}")
 
         # Add creation time if available
-        created_time = getattr(item, "  created_time", None)
+        created_time = getattr(item, "created_time", None)
         if created_time and isinstance(created_time, datetime.datetime):
             result_parts.append(f"  created: {created_time.isoformat()}")
 
         # Add update time if available
-        updated_time = getattr(item, "  updated_time", None)
+        updated_time = getattr(item, "updated_time", None)
         if updated_time and isinstance(updated_time, datetime.datetime):
             result_parts.append(f"  updated: {updated_time.isoformat()}")
 
@@ -112,3 +112,26 @@ def format_note_details(note: dt.NoteData) -> str:
         result_parts.append(f"content: {body}")
 
     return "\n".join(result_parts)
+
+
+def format_creation_success(item_type: ItemType, title: str, item_id: str) -> str:
+    return f"""operation: create_{item_type.value}
+        status: success
+        item_type: {item_type.value}
+        item_id: {item_id}
+        title: {title}
+        message: {item_type.value} created successfully in Joplin
+        """.replace(
+        "        ", ""
+    ).strip()
+
+
+def format_update_success(item_type: ItemType, item_id: str) -> str:
+    return f"""operation: update_{item_type.value}
+        status: success
+        item_type: {item_type.value}
+        item_id: {item_id}
+        message: {item_type.value} updated successfully in Joplin
+        """.replace(
+        "        ", ""
+    ).strip()

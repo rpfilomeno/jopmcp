@@ -6,6 +6,7 @@ from fastmcp.client.transports import StreamableHttpTransport
 transport = StreamableHttpTransport(url="http://localhost:8080/mcp")
 client = Client(transport=transport)
 
+
 def print_result(result) -> None:
     print("-" * 40)
     for e in result.content:
@@ -43,10 +44,62 @@ async def find_notes_in_notebook() -> None:
         print_result(result)
 
 
-async def get_note() -> None:
+async def get_note_by_id() -> None:
     async with client:
         result = await client.call_tool(
-            "get_note", {"note_id": "7578b9d831e54d8698bc219da68fec99"}
+            "get_note_by_id", {"note_id": "7578b9d831e54d8698bc219da68fec99"}
+        )
+        print_result(result)
+
+
+async def list_notes() -> None:
+    async with client:
+        result = await client.call_tool("list_notes")
+        print_result(result)
+
+
+async def find_notes() -> None:
+    async with client:
+        result = await client.call_tool("find_notes", {"query": "*french*london"})
+        print_result(result)
+
+
+async def create_note() -> None:
+    async with client:
+        result = await client.call_tool(
+            "create_note",
+            {
+                "notebook_id": "e524bcad76ce4403bbf206fc39aecbdd",
+                "title": "test note",
+                "content": "This is a test note.",
+            },
+        )
+        print_result(result)
+
+
+async def create_note_todo() -> None:
+    async with client:
+        result = await client.call_tool(
+            "create_note",
+            {
+                "notebook_id": "e524bcad76ce4403bbf206fc39aecbdd",
+                "title": "test note",
+                "content": "This is a test note.",
+                "is_todo": True,
+            },
+        )
+        print_result(result)
+
+
+async def update_note() -> None:
+    async with client:
+        result = await client.call_tool(
+            "update_note",
+            {
+                "note_id": "661706b8cb5b4cae89226a7ff6575064",
+                "title": "Updated Note Title",
+                "content": "This is the updated content of the note.",
+            },
         )
         print_result(result)
 
@@ -54,8 +107,13 @@ async def get_note() -> None:
 async def main() -> None:
     # await list_tools()
     # await list_notebook()
-    await find_notes_in_notebook()
-    # await get_note()
+    # await find_notes_in_notebook()
+    # await get_note_by_id()
+    # await list_notes()
+    # await find_notes()
+    # await create_note()
+    # await create_note_todo()
+    await update_note()
 
 
 if __name__ == "__main__":
