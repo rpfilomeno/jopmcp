@@ -1,0 +1,19 @@
+[project]
+name = "jopmcp"
+version = "0.1.0"
+description = "A MCP server for Joplin"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastmcp>=2.10.5",
+    "joppy>=1.0.0",
+    "python-json-logger>=3.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "isort>=6.0.1",
+    "mypy>=1.17.0",
+    "ruff>=0.12.4",
+]

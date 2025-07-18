@@ -1,0 +1,10 @@
+*__pycache__*
+*.envrc*
+.python-version
+*.mypy_cache
+*activity.log*
+*saved_models*
+test_token.py
+
+*.pkl
+*.npy
