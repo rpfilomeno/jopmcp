@@ -3,12 +3,12 @@ import logging
 from typing import Annotated
 
 import joppy.data_types as dt
-from custom_logging import init_logging
 from fastmcp import FastMCP
 from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from joppy.client_api import ClientApi
 from pydantic import Field
 
+from custom_logging import init_logging
 from jopmcp import config
 from jopmcp import formatting as fmt
 from jopmcp.models import ItemType
@@ -31,7 +31,7 @@ def build_paths() -> dict[str, str]:
     """Builds a dictionary mapping item IDs to their hierarchical paths in Joplin.
 
     This function retrieves all notes and notebooks, constructs a path for each items
-    based on their parent-child relationships, and returns a dictionary where keys are 
+    based on their parent-child relationships, and returns a dictionary where keys are
     item IDs and values are their paths in the format 'Parent > Child > Item'.
 
     Returns:
@@ -307,7 +307,7 @@ async def main() -> None:
         show_banner=False,
         transport="streamable-http",
         host="localhost",
-        port=8080,
+        port=config.MCP_PORT,
         log_level="debug",
         uvicorn_config={"log_config": config.LOGGING_CONFIG},
     )

@@ -1,4 +1,3 @@
-BUILD_HOST=192.168.0.13:32000
 NAME=jopmcp
 TAG=$(shell git log -1 --pretty=%h)
 
@@ -10,8 +9,6 @@ pkg:
 	docker tag ${NAME}:${TAG} ${NAME}:latest
 	docker tag ${NAME}:${TAG} ${BUILD_HOST}/${NAME}:${TAG}
 	docker tag ${NAME}:${TAG} ${BUILD_HOST}/${NAME}:latest
-	# docker push ${BUILD_HOST}/${NAME}:${TAG}
-	# docker push ${BUILD_HOST}/${NAME}:latest
 	# trivy image ${NAME}:${TAG}
 
 install:

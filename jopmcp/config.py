@@ -1,5 +1,7 @@
 import os
 
+MCP_PORT = int(os.getenv("MCP_PORT", "8080"))
+
 LOGGING_CONFIG = os.getenv("LOGGING_CONFIG", "logging.conf")
 
 JOPLIN_TOKEN: str = os.getenv("JOPLIN_TOKEN")  # type: ignore
