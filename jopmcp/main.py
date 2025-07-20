@@ -28,7 +28,17 @@ mcp.add_middleware(ErrorHandlingMiddleware(logger=logger, include_traceback=True
 
 
 def build_paths() -> dict[str, str]:
+    """Builds a dictionary mapping item IDs to their hierarchical paths in Joplin.
 
+    This function retrieves all notes and notebooks, constructs a path for each items
+    based on their parent-child relationships, and returns a dictionary where keys are 
+    item IDs and values are their paths in the format 'Parent > Child > Item'.
+
+    Returns:
+        A dictionary mapping item IDs to their hierarchical paths.
+        Example: {'note_id_1': 'Notebook > Subnotebook > Note Title', ...}
+
+    """
     notes = client.get_all_notes(fields=COMMON_NOTE_FIELDS)
     notebooks = client.get_all_notebooks(fields="id,title,parent_id")
     items = notes + notebooks
@@ -57,6 +67,12 @@ def build_paths() -> dict[str, str]:
 
 @mcp.tool(name="ping", description="Ping Joplin to check connectivity")
 def ping() -> str:
+    """Ping the Joplin server to check connectivity.
+
+    Returns:
+        str: A message indicating whether the ping was successful or failed.
+
+    """
     res = client.ping()
 
     if res.status_code == 200:
@@ -67,6 +83,12 @@ def ping() -> str:
 
 @mcp.tool(name="list_notebooks", description="List all notebooks in Joplin")
 def list_notebooks() -> str:
+    """List all notebooks in Joplin.
+
+    Returns:
+        str: A formatted string listing all notebooks with their details.
+
+    """
     fields_list = "id,title,created_time,updated_time,parent_id"
     results = client.get_all_notebooks(fields=fields_list)
     return fmt.format_item_list(results, ItemType.notebook, paths=build_paths())
@@ -74,11 +96,19 @@ def list_notebooks() -> str:
 
 @mcp.tool(
     name="find_notes_in_notebook",
-    description="Find notes in a specific notebook, optionally filtered by task type and completion status",
+    description="Find notes in a specific notebook",
 )
 async def find_notes_in_notebook(
     notebook_name: Annotated[str, Field(description="Notebook name to search in")],
 ) -> str:
+    """Find notes in a specific notebook by its name.
+
+    Args:
+        notebook_name: The name of the notebook to search in.
+    Returns:
+        str: A formatted string listing all notes found in the specified notebook.
+
+    """
     search_parts = [f"notebook:{notebook_name}".replace(" ", "_")]
     search_query = " ".join(search_parts)
     results = client.search_all(query=search_query, fields=COMMON_NOTE_FIELDS)
@@ -90,6 +120,11 @@ async def find_notes_in_notebook(
     description="List all notes in Joplin",
 )
 async def list_notes() -> str:
+    """List all notes in Joplin.
+
+    Returns:
+        A formatted string listing all notes with their details.
+    """
     notes = client.get_all_notes(fields=COMMON_NOTE_FIELDS)
     return fmt.format_item_list(notes, ItemType.note, paths=build_paths())
 
@@ -101,6 +136,15 @@ async def list_notes() -> str:
 async def get_note_by_id(
     note_id: Annotated[str, Field(description="Note ID to retrieve")],
 ) -> str:
+    """Get the content of a note by its ID.
+
+    Args:
+        note_id: The ID of the note to retrieve.
+
+    Returns:
+        str: A formatted string with the note's details.
+
+    """
     note = client.get_note(note_id, fields=COMMON_NOTE_FIELDS)
     return fmt.format_note_details(note)
 
@@ -114,6 +158,15 @@ async def find_notes(
         str, Field(description="Search query for notes. Wildcards '*' are supported")
     ],
 ) -> str:
+    """Find notes in Joplin using a search query.
+
+    Args:
+        query: The search query to find notes. Supports wildcards '*'.
+
+    Returns:
+        A formatted string listing all notes that match the search query.
+
+    """
     search_parts = [query]
     search_query = " ".join(search_parts)
     results = client.search_all(query=search_query, fields=COMMON_NOTE_FIELDS)
@@ -133,6 +186,18 @@ async def create_note(
         bool, Field(description="Create as todo (default: False)")
     ] = False,
 ) -> str:
+    """Create a new note in a specified notebook.
+
+    Args:
+        notebook_id: The ID of the notebook where the note will be created.
+        title: The title of the new note.
+        content: The content of the new note (default is empty).
+        is_todo: Whether to create the note as a todo (default is False).
+
+    Returns:
+        A formatted string indicating the success of the note creation.
+
+    """
     note = client.add_note(
         title=title, body=content, parent_id=notebook_id, is_todo=1 if is_todo else 0
     )
@@ -154,7 +219,22 @@ async def update_note(
         bool | None, Field(description="Mark todo completed (optional)")
     ] = None,
 ) -> str:
+    """Update an existing note in Joplin.
 
+    Args:
+        note_id: The ID of the note to update.
+        title: The new title for the note (optional).
+        content: The new content for the note (optional).
+        is_todo: Whether to convert the note to a todo (optional).
+        todo_completed: Whether to mark the todo as completed (optional).
+
+    Raises:
+        ValueError: If no fields are provided for update.
+
+    Returns:
+        A formatted string indicating the success of the note update.
+
+    """
     update_data: dict[str, str | int] = {}
     if title is not None:
         update_data["title"] = title
@@ -182,6 +262,16 @@ async def create_notebook(
         str | None, Field(description="Parent notebook ID (optional)")
     ] = None,
 ) -> str:
+    """Create a new notebook in Joplin.
+
+    Args:
+        title: The title of the new notebook.
+        parent_id: The ID of the parent notebook (optional).
+
+    Returns:
+        A formatted string indicating the success of the notebook creation.
+
+    """
     notebook_kwargs = {"title": title}
     if parent_id:
         notebook_kwargs["parent_id"] = parent_id.strip()
@@ -198,13 +288,21 @@ async def update_notebook(
     notebook_id: Annotated[str, Field(description="Notebook ID to update")],
     title: Annotated[str, Field(description="New notebook title")],
 ) -> str:
+    """Update an existing notebook in Joplin.
+
+    Args:
+        notebook_id: The ID of the notebook to update.
+        title: The new title for the notebook.
+
+    Returns:
+        A formatted string indicating the success of the notebook update.
+
+    """
     client.modify_notebook(notebook_id, title=title)
     return fmt.format_update_success(ItemType.notebook, notebook_id)
 
 
 async def main() -> None:
-    # TODO: allow other transports
-    # await mcp.run_streamable_http_async(host="localhost", port=8080, log_level="debug")
     await mcp.run_http_async(
         show_banner=False,
         transport="streamable-http",
@@ -213,10 +311,6 @@ async def main() -> None:
         log_level="debug",
         uvicorn_config={"log_config": config.LOGGING_CONFIG},
     )
-
-    # TODO: middlewares:
-    # - error handling -> with obfuscation of token
-    # - logging
 
 
 if __name__ == "__main__":

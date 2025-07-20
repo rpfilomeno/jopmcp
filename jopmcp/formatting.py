@@ -6,7 +6,17 @@ from jopmcp.models import ItemType
 
 
 def format_item_list(items: list, item_type: ItemType, paths: dict[str, str]) -> str:
-    """Format a list of items (notebooks, tags, etc.) for display optimized for LLM comprehension."""
+    """Format a list of Joplin items for display, optimized for LLM comprehension.
+
+    Args:
+        items: List of Joplin items (notes, notebooks, tags).
+        item_type: Type of the items (note, notebook, tag).
+        paths: Dictionary mapping item IDs to their paths.
+
+    Returns:
+        Formatted string representation of the items.
+
+    """
     if not items:
         return f"ITEM_TYPE: {item_type.value}\nTOTAL_ITEMS: 0\nSTATUS: No {item_type.value}s found in Joplin instance"
 
@@ -50,7 +60,15 @@ def format_item_list(items: list, item_type: ItemType, paths: dict[str, str]) ->
 
 
 def format_note_details(note: dt.NoteData) -> str:
-    """Format a note for detailed display optimized for LLM comprehension."""
+    """Format a single Joplin note's details for display, optimized for LLM comprehension.
+
+    Args:
+        note: Joplin note data object.
+
+    Returns:
+        Formatted string representation of the note details.
+
+    """
     title = getattr(note, "title", "Untitled")
     note_id = getattr(note, "id", "unknown")
 
@@ -90,6 +108,17 @@ def format_note_details(note: dt.NoteData) -> str:
 
 
 def format_creation_success(item_type: ItemType, title: str, item_id: str) -> str:
+    """Format a success message for item creation in Joplin.
+
+    Args:
+        item_type: Type of the item (note, notebook, tag).
+        title: Title of the created item.
+        item_id: ID of the created item.
+
+    Returns:
+        Formatted success message string.
+
+    """
     return f"""operation: create_{item_type.value}
         status: success
         item_type: {item_type.value}
@@ -102,6 +131,16 @@ def format_creation_success(item_type: ItemType, title: str, item_id: str) -> st
 
 
 def format_update_success(item_type: ItemType, item_id: str) -> str:
+    """Format a success message for item update in Joplin.
+
+    Args:
+        item_type: Type of the item (note, notebook, tag).
+        item_id: ID of the updated item.
+
+    Returns:
+        Formatted success message string.
+
+    """
     return f"""operation: update_{item_type.value}
         status: success
         item_type: {item_type.value}
