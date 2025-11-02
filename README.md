@@ -34,7 +34,7 @@ somewhere that spins up all my MCPs. To run this MCP, follow these steps:
 ```yaml
 services:
   joplin:
-    image: jopmcp:latest
+    image: rpfilomeno/jopmcp:latest
     container_name: jopmcp
     network_mode: "host"
     environment:
